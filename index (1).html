@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>La Vaca · Swiss Generis</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:system-ui,sans-serif;background:#f5f5f0;color:#1a1a18;}
+.btn{padding:8px 16px;border-radius:8px;border:0.5px solid #d0cfc8;background:#fff;color:#1a1a18;cursor:pointer;font-size:14px;font-weight:500;transition:background 0.15s;}
+.btn:hover{background:#f0efe8;}
+.btn-primary{background:#8B1A1A;border-color:#8B1A1A;color:#fff;}
+.btn-primary:hover{background:#6B1414;}
+.btn-success{background:#059669;border-color:#059669;color:#fff;}
+.btn-success:hover{background:#047857;}
+.btn-danger{background:#fff0f0;border-color:#fca5a5;color:#dc2626;}
+.btn-danger:hover{background:#fee2e2;}
+.btn-sm{padding:4px 10px;font-size:12px;}
+.card{background:#fff;border-radius:12px;border:0.5px solid #e8e7e0;padding:1.25rem;}
+input,select{width:100%;padding:8px 12px;border-radius:8px;border:0.5px solid #d0cfc8;background:#fff;color:#1a1a18;font-size:14px;}
+input:focus,select:focus{outline:none;border-color:#8B1A1A;}
+label{font-size:13px;color:#6b6b68;display:block;margin-bottom:4px;}
+.nav-tab{padding:8px 14px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:500;color:#6b6b68;transition:all 0.15s;white-space:nowrap;border:none;background:transparent;}
+.nav-tab.active{background:#F5E6E6;color:#8B1A1A;}
+.nav-tab:hover:not(.active){background:#f0efe8;}
+.divider{height:0.5px;background:#e8e7e0;margin:1rem 0;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.stat-card{background:#f5f5f0;border-radius:8px;padding:1rem;text-align:center;}
+.stat-label{font-size:12px;color:#6b6b68;margin-bottom:4px;}
+.row{display:flex;align-items:center;gap:10px;}
+.col{display:flex;flex-direction:column;gap:10px;}
+.space-between{justify-content:space-between;}
+.scroll-list{max-height:360px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;}
+.empty-state{text-align:center;padding:2rem;color:#6b6b68;font-size:14px;}
+.badge{font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500;}
+.badge-capi{background:#F5E6E6;color:#8B1A1A;}
+.badge-teso{background:#E1F5EE;color:#085041;}
+.avatar-ring{border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.toggle-row{display:flex;border-radius:8px;overflow:hidden;border:0.5px solid #d0cfc8;}
+.toggle-opt{flex:1;padding:7px;text-align:center;cursor:pointer;font-size:13px;font-weight:500;color:#6b6b68;background:#f5f5f0;border:none;transition:all 0.15s;}
+.toggle-opt.active{background:#8B1A1A;color:#fff;}
+.monto-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:0.5px solid #e8e7e0;}
+.monto-row:last-child{border-bottom:none;}
+.monto-input{width:110px!important;padding:5px 8px!important;font-size:13px!important;text-align:right;}
+.warning-bar{background:#FEF3CD;border:0.5px solid #F59E0B;border-radius:8px;padding:8px 12px;font-size:13px;color:#92400E;}
+.ok-bar{background:#D1FAE5;border:0.5px solid #10B981;border-radius:8px;padding:8px 12px;font-size:13px;color:#065F46;}
+.pagado-banner{background:#D1FAE5;border:1px solid #6EE7B7;border-radius:8px;padding:8px 14px;display:flex;align-items:center;gap:8px;font-size:13px;color:#065F46;font-weight:500;}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+const {useState,useEffect,useRef}=React;
+const {createRoot}=ReactDOM;
+
+const COLORS=['#8B1A1A','#A52020','#6B4226','#8B4513','#7B3F00','#6B1414','#9C2A2A','#7A1C1C','#5C3317','#8B2500','#922B21','#7B241C','#A93226','#8B1A1A','#6B3030','#7F2020','#8B3A3A','#9E2020','#6B1A1A','#A04040'];
+
+const ESCUDO_SVG=`<svg viewBox="0 0 100 110" xmlns="http://www.w3.org/2000/svg">
+  <path d="M50 5 L90 18 L90 55 Q90 85 50 105 Q10 85 10 55 L10 18 Z" fill="#8B1A1A" stroke="#3d0a0a" stroke-width="2.5"/>
+  <path d="M50 11 L84 22 L84 55 Q84 80 50 98 Q16 80 16 55 L16 22 Z" fill="none" stroke="white" stroke-width="1.5" opacity="0.5"/>
+  <polygon points="22,64 38,32 54,64" fill="white" opacity="0.92"/>
+  <polygon points="34,64 50,22 66,64" fill="white"/>
+  <polygon points="38,32 42,40 34,40" fill="white" opacity="0.5"/>
+  <polygon points="50,22 54,33 46,33" fill="white" opacity="0.7"/>
+  <ellipse cx="40" cy="61" rx="7" ry="4" fill="#3d0a0a"/>
+  <circle cx="44" cy="57" r="3.5" fill="#3d0a0a"/>
+  <line x1="36" y1="65" x2="35" y2="70" stroke="#3d0a0a" stroke-width="1.5"/>
+  <line x1="39" y1="65" x2="38" y2="70" stroke="#3d0a0a" stroke-width="1.5"/>
+  <line x1="42" y1="65" x2="41" y2="70" stroke="#3d0a0a" stroke-width="1.5"/>
+  <line x1="45" y1="65" x2="46" y2="70" stroke="#3d0a0a" stroke-width="1.5"/>
+  <line x1="44" y1="54" x2="42" y2="50" stroke="#3d0a0a" stroke-width="1.2"/>
+  <line x1="46" y1="54" x2="48" y2="50" stroke="#3d0a0a" stroke-width="1.2"/>
+  <circle cx="68" cy="42" r="12" fill="white" stroke="#222" stroke-width="1"/>
+  <polygon points="68,32 72,37 70,43 66,43 64,37" fill="#222"/>
+  <polygon points="78,39 74,43 70,43 72,37" fill="#222" opacity="0.6"/>
+  <polygon points="58,39 62,43 66,43 64,37" fill="#222" opacity="0.6"/>
+  <path d="M15,76 Q15,71 10,68 L10,78 Q10,83 15,83 L85,83 Q90,83 90,78 L90,68 Q85,71 85,76 Z" fill="#8B1A1A" stroke="#3d0a0a" stroke-width="1"/>
+  <text x="50" y="81" text-anchor="middle" fill="white" font-size="11" font-weight="bold" font-family="Georgia,serif" letter-spacing="1">LA VACA</text>
+  <path d="M10,68 Q5,72 8,78 L15,76 Q15,71 10,68Z" fill="#6B1414"/>
+  <path d="M90,68 Q95,72 92,78 L85,76 Q85,71 90,68Z" fill="#6B1414"/>
+</svg>`;
+
+function initials(n){return n.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();}
+function fmtCLP(n){return '$'+Math.round(n).toLocaleString('es-CL');}
+function fmtDate(d){return new Date(d).toLocaleDateString('es-CL',{day:'2-digit',month:'2-digit'});}
+
+const SEED_MAMAS=[
+  {id:'m1',nombre:'Coni',pin:'1111',tesorera:true,capitana:true,foto:null},
+  {id:'m2',nombre:'Mariana',pin:'2222',tesorera:false,capitana:false,foto:null},
+  {id:'m3',nombre:'Magdalena',pin:'3333',tesorera:false,capitana:false,foto:null},
+  {id:'m4',nombre:'Bego',pin:'4444',tesorera:false,capitana:false,foto:null},
+  {id:'m5',nombre:'Pili',pin:'5555',tesorera:false,capitana:false,foto:null},
+  {id:'m6',nombre:'Ori',pin:'6666',tesorera:false,capitana:false,foto:null},
+  {id:'m7',nombre:'Elli',pin:'7777',tesorera:false,capitana:false,foto:null},
+  {id:'m8',nombre:'Bernardita',pin:'8888',tesorera:false,capitana:false,foto:null},
+  {id:'m9',nombre:'Fran',pin:'9999',tesorera:false,capitana:false,foto:null},
+  {id:'m10',nombre:'Fran Cé',pin:'1010',tesorera:false,capitana:false,foto:null},
+  {id:'m11',nombre:'Tita',pin:'1122',tesorera:false,capitana:false,foto:null},
+  {id:'m12',nombre:'Barbara',pin:'1212',tesorera:false,capitana:false,foto:null},
+  {id:'m13',nombre:'Caro',pin:'1313',tesorera:false,capitana:false,foto:null},
+  {id:'m14',nombre:'Eléctrica',pin:'1414',tesorera:false,capitana:false,foto:null},
+  {id:'m15',nombre:'Aura',pin:'1515',tesorera:false,capitana:false,foto:null},
+  {id:'m16',nombre:'Andrea',pin:'1616',tesorera:false,capitana:false,foto:null},
+  {id:'m17',nombre:'Maca B',pin:'1717',tesorera:false,capitana:false,foto:null},
+  {id:'m18',nombre:'Poly',pin:'1818',tesorera:false,capitana:false,foto:null},
+  {id:'m19',nombre:'Trini',pin:'1919',tesorera:false,capitana:false,foto:null},
+  {id:'m20',nombre:'Maca Sch',pin:'2020',tesorera:false,capitana:false,foto:null},
+];
+
+// ── Avatar ─────────────────────────────────────────────────────────────────
+function Avatar({mama,size=36,idx=0,editable=false,onUpload}){
+  const ref=useRef();
+  const fs=size<28?'9px':size<36?'11px':'13px';
+  function handleFile(e){
+    const file=e.target.files[0];if(!file)return;
+    const img=new Image(),url=URL.createObjectURL(file);
+    img.onload=()=>{
+      const MAX=200,r=Math.min(MAX/img.width,MAX/img.height,1);
+      const c=document.createElement('canvas');
+      c.width=Math.round(img.width*r);c.height=Math.round(img.height*r);
+      c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+      URL.revokeObjectURL(url);onUpload&&onUpload(c.toDataURL('image/jpeg',0.7));
+    };img.src=url;
+  }
+  return React.createElement('div',{style:{position:'relative',width:size,height:size,flexShrink:0}},
+    React.createElement('div',{className:'avatar-ring',style:{width:size,height:size,background:mama.foto?'transparent':COLORS[idx%COLORS.length],fontSize:fs,color:'#fff',fontWeight:600,cursor:editable?'pointer':'default',border:editable?'2px dashed rgba(139,26,26,0.35)':'none'},onClick:editable?()=>ref.current.click():undefined},
+      mama.foto
+        ?React.createElement('img',{src:mama.foto,alt:mama.nombre,style:{width:'100%',height:'100%',objectFit:'cover',borderRadius:'50%'}})
+        :initials(mama.nombre)
+    ),
+    editable&&React.createElement('div',{style:{position:'absolute',bottom:-1,right:-1,width:Math.max(16,size*.38),height:Math.max(16,size*.38),borderRadius:'50%',background:'#8B1A1A',display:'flex',alignItems:'center',justifyContent:'center',fontSize:Math.max(9,size*.22),color:'#fff',border:'2px solid #fff',pointerEvents:'none'}},'📷'),
+    editable&&React.createElement('input',{type:'file',accept:'image/*',ref,style:{display:'none'},onChange:handleFile})
+  );
+}
+
+// ── App ────────────────────────────────────────────────────────────────────
+function App(){
+  const[state,setState]=useState(()=>{
+    try{const s=localStorage.getItem('lavaca_v3');return s?JSON.parse(s):null;}catch{return null;}
+  });
+  const[usuario,setUsuario]=useState(null);
+  const[view,setView]=useState('home');
+  const data=state||{mamas:SEED_MAMAS,gastos:[],pagos:[]};
+  const safeData={...data,pagos:data.pagos||[]};
+  useEffect(()=>{try{localStorage.setItem('lavaca_v3',JSON.stringify(safeData));}catch{};},[state]);
+  function save(d){setState({...d,pagos:d.pagos||[]});}
+  function login(m){setUsuario(m);setView('home');}
+  function logout(){setUsuario(null);setView('home');}
+  function updateFoto(id,foto){
+    save({...safeData,mamas:safeData.mamas.map(m=>m.id===id?{...m,foto}:m)});
+    if(usuario?.id===id)setUsuario(u=>({...u,foto}));
+  }
+  if(!usuario)return React.createElement(Login,{mamas:safeData.mamas,onLogin:login});
+  return React.createElement(Main,{data:safeData,usuario,onSave:save,onLogout:logout,view,setView,onUpdateFoto:updateFoto});
+}
+
+// ── Login ──────────────────────────────────────────────────────────────────
+function Login({mamas,onLogin}){
+  const[selId,setSelId]=useState('');
+  const[pin,setPin]=useState('');
+  const[err,setErr]=useState('');
+  const sel=mamas.find(m=>m.id===selId);
+  const si=mamas.findIndex(m=>m.id===selId);
+  function go(){
+    const m=mamas.find(m=>m.id===selId&&m.pin===pin);
+    if(m)onLogin(m);else setErr('PIN incorrecto. Pídele a Coni 🙋‍♀️');
+  }
+  return React.createElement('div',{style:{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',padding:'1rem',background:'#f5f5f0'}},
+    React.createElement('div',{style:{width:'100%',maxWidth:'360px'}},
+      React.createElement('div',{style:{textAlign:'center',marginBottom:'1.5rem'}},
+        React.createElement('div',{style:{width:'110px',height:'120px',margin:'0 auto 10px'},dangerouslySetInnerHTML:{__html:ESCUDO_SVG}}),
+        React.createElement('h1',{style:{fontSize:'28px',fontWeight:800,color:'#8B1A1A',fontFamily:'Georgia,serif',letterSpacing:'2px'}},'LA VACA'),
+        React.createElement('p',{style:{fontSize:'12px',color:'#6b6b68',marginTop:'2px'}},'Mamás Fútbol · Colegio Suizo de Santiago')
+      ),
+      React.createElement('div',{className:'card col'},
+        React.createElement('div',null,
+          React.createElement('label',null,'¿Quién eres?'),
+          React.createElement('select',{value:selId,onChange:e=>setSelId(e.target.value)},
+            React.createElement('option',{value:''},'-- Elige tu nombre --'),
+            ...mamas.map(m=>React.createElement('option',{key:m.id,value:m.id},m.nombre+(m.capitana?' ⚽':'')))
+          )
+        ),
+        sel&&React.createElement('div',{style:{display:'flex',justifyContent:'center',padding:'4px 0'}},
+          React.createElement(Avatar,{mama:sel,size:60,idx:si})
+        ),
+        React.createElement('div',null,
+          React.createElement('label',null,'PIN'),
+          React.createElement('input',{type:'password',maxLength:4,value:pin,onChange:e=>setPin(e.target.value),onKeyDown:e=>e.key==='Enter'&&go(),placeholder:'••••'})
+        ),
+        err&&React.createElement('p',{style:{color:'#dc2626',fontSize:'13px'}},err),
+        React.createElement('button',{className:'btn btn-primary',style:{width:'100%'},onClick:go},'Entrar')
+      ),
+      React.createElement('p',{style:{textAlign:'center',fontSize:'12px',color:'#6b6b68',marginTop:'10px'}},'¿No tienes PIN? Escríbele a Coni ⚽')
+    )
+  );
+}
+
+// ── Main ───────────────────────────────────────────────────────────────────
+function Main({data,usuario,onSave,onLogout,view,setView,onUpdateFoto}){
+  const idx=data.mamas.findIndex(m=>m.id===usuario.id);
+  const esAdmin=usuario.tesorera;
+  const tabs=[
+    {id:'home',label:'Inicio'},
+    {id:'gastos',label:'Gastos'},
+    {id:'balances',label:'Saldos'},
+    {id:'perfil',label:'Mi perfil'},
+    ...(esAdmin?[{id:'admin',label:'Admin ⚙️'}]:[])
+  ];
+  const views={
+    home:React.createElement(Home,{data,usuario,idx,onUpdateFoto}),
+    gastos:React.createElement(Gastos,{data,usuario,onSave}),
+    balances:React.createElement(Balances,{data,usuario,onSave}),
+    perfil:React.createElement(Perfil,{data,usuario,idx,onSave,onUpdateFoto}),
+    admin:React.createElement(Admin,{data,usuario,onSave}),
+  };
+  return React.createElement('div',{style:{minHeight:'100vh',display:'flex',flexDirection:'column'}},
+    React.createElement('div',{style:{background:'#8B1A1A',padding:'10px 16px',display:'flex',alignItems:'center',justifyContent:'space-between'}},
+      React.createElement('div',{className:'row',style:{gap:'10px'}},
+        React.createElement('div',{style:{width:'40px',height:'44px'},dangerouslySetInnerHTML:{__html:ESCUDO_SVG}}),
+        React.createElement('div',null,
+          React.createElement('div',{style:{fontWeight:800,color:'#fff',fontSize:'18px',fontFamily:'Georgia,serif',letterSpacing:'2px'}},'LA VACA'),
+          React.createElement('div',{style:{fontSize:'10px',color:'rgba(255,255,255,0.5)'}},esAdmin?'Tesorera · Admin':'Swiss Generis · CSS')
+        )
+      ),
+      React.createElement('div',{className:'row',style:{gap:'8px'}},
+        React.createElement(Avatar,{mama:usuario,size:32,idx}),
+        React.createElement('div',null,
+          React.createElement('div',{style:{fontSize:'13px',color:'#f5c0c0',fontWeight:500}},usuario.nombre),
+          React.createElement('div',{style:{fontSize:'10px',color:'rgba(255,255,255,0.5)'}},usuario.capitana?'Capitana ⚽':usuario.tesorera?'Tesorera 💰':'')
+        ),
+        React.createElement('button',{className:'btn btn-sm',style:{fontSize:'12px'},onClick:onLogout},'Salir')
+      )
+    ),
+    React.createElement('div',{style:{background:'#fff',borderBottom:'0.5px solid #e8e7e0',padding:'6px 10px',display:'flex',gap:'2px',overflowX:'auto'}},
+      ...tabs.map(t=>React.createElement('button',{key:t.id,className:'nav-tab'+(view===t.id?' active':''),onClick:()=>setView(t.id)},t.label))
+    ),
+    React.createElement('div',{style:{padding:'1rem',flex:1,maxWidth:'680px',margin:'0 auto',width:'100%'}},
+      views[view]||views.home)
+  );
+}
+
+// ── calcBalances ───────────────────────────────────────────────────────────
+function calcBalances(data){
+  const b={};data.mamas.forEach(m=>{b[m.id]=0;});
+  data.gastos.forEach(g=>{
+    if(g.montosPorMama){
+      Object.entries(g.montosPorMama).forEach(([id,monto])=>{
+        if(id===g.pagadoPor)b[id]=(b[id]||0)+(g.monto-monto);
+        else b[id]=(b[id]||0)-monto;
+      });
+    } else {
+      const p=g.participantes||data.mamas.map(m=>m.id);
+      const s=g.monto/p.length;
+      b[g.pagadoPor]=(b[g.pagadoPor]||0)+(g.monto-s);
+      p.forEach(pid=>{if(pid!==g.pagadoPor)b[pid]=(b[pid]||0)-s;});
+    }
+  });
+  (data.pagos||[]).forEach(p=>{
+    b[p.deId]=(b[p.deId]||0)+p.monto;
+    b[p.aId]=(b[p.aId]||0)-p.monto;
+  });
+  return b;
+}
+
+// ── Home ───────────────────────────────────────────────────────────────────
+function Home({data,usuario,idx,onUpdateFoto}){
+  const total=data.gastos.reduce((a,g)=>a+g.monto,0);
+  const b=calcBalances(data);
+  const saldo=b[usuario.id]||0;
+  return React.createElement('div',{className:'col'},
+    React.createElement('div',{className:'card',style:{display:'flex',alignItems:'center',gap:'16px'}},
+      React.createElement(Avatar,{mama:usuario,size:70,idx,editable:true,onUpload:f=>onUpdateFoto(usuario.id,f)}),
+      React.createElement('div',{className:'col',style:{gap:'4px'}},
+        React.createElement('h2',{style:{fontSize:'19px',fontWeight:700}},'¡Hola, '+usuario.nombre+'!'),
+        React.createElement('div',{className:'row',style:{gap:'4px',flexWrap:'wrap'}},
+          usuario.capitana&&React.createElement('span',{className:'badge badge-capi'},'⚽ Capitana'),
+          usuario.tesorera&&React.createElement('span',{className:'badge badge-teso'},'💰 Tesorera · Admin')
+        ),
+        React.createElement('p',{style:{fontSize:'11px',color:'#6b6b68'}},'Toca tu foto para cambiarla 📷')
+      )
+    ),
+    React.createElement('div',{className:'grid2'},
+      React.createElement('div',{className:'stat-card'},
+        React.createElement('div',{className:'stat-label'},'Total gastado'),
+        React.createElement('div',{style:{fontSize:'16px',fontWeight:600,color:'#8B1A1A',marginTop:'4px'}},fmtCLP(total))
+      ),
+      React.createElement('div',{className:'stat-card'},
+        React.createElement('div',{className:'stat-label'},'Tu saldo'),
+        React.createElement('div',{style:{fontSize:'13px',fontWeight:600,color:saldo>0.5?'#059669':saldo<-0.5?'#dc2626':'#6b6b68',marginTop:'4px'}},
+          saldo>0.5?'Te deben '+fmtCLP(saldo):saldo<-0.5?'Debes '+fmtCLP(-saldo):'✓ Al día')
+      )
+    ),
+    React.createElement('div',{className:'card'},
+      React.createElement('p',{style:{fontSize:'13px',fontWeight:500,color:'#6b6b68',marginBottom:'12px'}},'El equipo · '+data.mamas.length+' mamás'),
+      React.createElement('div',{style:{display:'flex',flexWrap:'wrap',gap:'12px'}},
+        ...data.mamas.map((m,i)=>React.createElement('div',{key:m.id,style:{display:'flex',flexDirection:'column',alignItems:'center',gap:'4px',width:'48px'}},
+          React.createElement(Avatar,{mama:m,size:42,idx:i}),
+          React.createElement('span',{style:{fontSize:'10px',textAlign:'center',color:'#6b6b68',lineHeight:'1.2',wordBreak:'break-word'}},m.nombre)
+        ))
+      )
+    ),
+    data.gastos.length>0&&React.createElement('div',{className:'col',style:{gap:'6px'}},
+      React.createElement('p',{style:{fontSize:'13px',color:'#6b6b68'}},'Últimos gastos'),
+      ...data.gastos.slice(-3).reverse().map(g=>{
+        const pg=data.mamas.find(m=>m.id===g.pagadoPor);
+        const pi=data.mamas.findIndex(m=>m.id===g.pagadoPor);
+        return React.createElement('div',{key:g.id,className:'card row space-between',style:{padding:'10px 14px'}},
+          React.createElement('div',{className:'row',style:{gap:'8px'}},
+            React.createElement(Avatar,{mama:pg||{nombre:'?',foto:null},size:30,idx:pi}),
+            React.createElement('div',{className:'col',style:{gap:'1px'}},
+              React.createElement('span',{style:{fontSize:'13px',fontWeight:500}},g.descripcion),
+              React.createElement('span',{style:{fontSize:'11px',color:'#6b6b68'}},fmtDate(g.fecha)+' · '+pg?.nombre)
+            )
+          ),
+          React.createElement('span',{style:{fontWeight:600,color:'#8B1A1A'}},fmtCLP(g.monto))
+        );
+      })
+    ),
+    data.gastos.length===0&&React.createElement('div',{className:'empty-state'},'¡Aún no hay gastos! Agrega el primer tercer tiempo 🍺🥩')
+  );
+}
+
+// ── Balances ───────────────────────────────────────────────────────────────
+function Balances({data,usuario,onSave}){
+  const esAdmin=usuario.tesorera;
+  const b=calcBalances(data);
+  const deudas=[];
+  const bCopy={};Object.entries(b).forEach(([k,v])=>bCopy[k]=v);
+  const pp=Object.entries(bCopy).filter(([,v])=>v>0.5).map(([id,v])=>[id,v]).sort((a,c)=>c[1]-a[1]);
+  const nn=Object.entries(bCopy).filter(([,v])=>v<-0.5).map(([id,v])=>[id,v]).sort((a,c)=>a[1]-c[1]);
+  let pi=0,ni=0;
+  while(pi<pp.length&&ni<nn.length){
+    const amt=Math.min(pp[pi][1],-nn[ni][1]);
+    if(amt>1)deudas.push({de:nn[ni][0],a:pp[pi][0],monto:amt});
+    pp[pi][1]-=amt;nn[ni][1]+=amt;
+    if(pp[pi][1]<1)pi++;if(nn[ni][1]>-1)ni++;
+  }
+  function marcarPagado(deId,aId,monto){
+    const pago={id:'p'+Date.now(),deId,aId,monto:Math.round(monto),fecha:new Date().toISOString().slice(0,10)};
+    onSave({...data,pagos:[...(data.pagos||[]),pago]});
+  }
+  function deshacerPago(id){
+    onSave({...data,pagos:(data.pagos||[]).filter(p=>p.id!==id)});
+  }
+  const historialPagos=(data.pagos||[]).slice().reverse();
+  return React.createElement('div',{className:'col'},
+    React.createElement('h2',{style:{fontSize:'17px',fontWeight:500}},'Saldos del equipo'),
+    React.createElement('div',{style:{display:'flex',flexDirection:'column',gap:'6px'}},
+      ...data.mamas.map((m,i)=>{
+        const s=b[m.id]||0,isMe=m.id===usuario.id;
+        return React.createElement('div',{key:m.id,className:'card row space-between',style:{padding:'10px 14px',border:isMe?'1.5px solid #8B1A1A':''}},
+          React.createElement('div',{className:'row',style:{gap:'10px'}},
+            React.createElement(Avatar,{mama:m,size:36,idx:i}),
+            React.createElement('div',{className:'col',style:{gap:'1px'}},
+              React.createElement('span',{style:{fontSize:'14px',fontWeight:500}},m.nombre+(isMe?' (tú)':'')+(m.capitana?' ⚽':'')+(m.tesorera?' 💰':'')),
+              React.createElement('span',{style:{fontSize:'11px',color:'#6b6b68'}},s>0.5?'Ha puesto de más':s<-0.5?'Debe':'Al día ✓')
+            )
+          ),
+          React.createElement('span',{style:{fontWeight:600,fontSize:'15px',color:s>0.5?'#059669':s<-0.5?'#dc2626':'#6b6b68'}},
+            s>0.5?'+'+fmtCLP(s):s<-0.5?fmtCLP(s):'✓')
+        );
+      })
+    ),
+    React.createElement('div',{className:'divider'}),
+    React.createElement('h3',{style:{fontSize:'15px',fontWeight:500,marginBottom:'8px'}},'Transferencias pendientes 💸'),
+    deudas.length===0
+      ?React.createElement('div',{className:'empty-state',style:{padding:'1rem'}},data.gastos.length>0?'✅ ¡Todas al día!':'Sin gastos aún')
+      :React.createElement('div',{style:{display:'flex',flexDirection:'column',gap:'8px'}},
+        ...deudas.map((d,i)=>{
+          const de=data.mamas.find(m=>m.id===d.de),a=data.mamas.find(m=>m.id===d.a);
+          const esYo=d.de===usuario.id;
+          const ide=data.mamas.findIndex(m=>m.id===d.de),ia=data.mamas.findIndex(m=>m.id===d.a);
+          return React.createElement('div',{key:i,className:'card',style:{background:esYo?'#FFF5F5':'',border:esYo?'1px solid #FCA5A5':'',padding:'12px 14px'}},
+            React.createElement('div',{className:'row space-between',style:{flexWrap:'wrap',gap:'8px'}},
+              React.createElement('div',{className:'row',style:{gap:'8px',flexWrap:'wrap'}},
+                React.createElement(Avatar,{mama:de||{nombre:'?',foto:null},size:32,idx:ide}),
+                React.createElement('div',{className:'col',style:{gap:'1px'}},
+                  React.createElement('span',{style:{fontSize:'13px',fontWeight:600}},de?.nombre+(esYo?' (tú)':'')),
+                  React.createElement('span',{style:{fontSize:'11px',color:'#6b6b68'}},'debe transferir a')
+                ),
+                React.createElement('span',{style:{fontSize:'18px',color:'#6b6b68'}},'→'),
+                React.createElement(Avatar,{mama:a||{nombre:'?',foto:null},size:32,idx:ia}),
+                React.createElement('span',{style:{fontSize:'13px',fontWeight:600}},a?.nombre)
+              ),
+              React.createElement('div',{className:'col',style:{alignItems:'flex-end',gap:'6px'}},
+                React.createElement('span',{style:{fontWeight:700,color:'#dc2626',fontSize:'16px'}},fmtCLP(Math.round(d.monto))),
+                esAdmin&&React.createElement('button',{className:'btn btn-success btn-sm',onClick:()=>marcarPagado(d.de,d.a,d.monto)},'✓ Marcar pagado')
+              )
+            ),
+            esYo&&React.createElement('p',{style:{fontSize:'12px',color:'#8B1A1A',marginTop:'6px'}},'👈 ¡Esta eres tú!')
+          );
+        })
+      ),
+    historialPagos.length>0&&React.createElement('div',null,
+      React.createElement('div',{className:'divider'}),
+      React.createElement('h3',{style:{fontSize:'15px',fontWeight:500,marginBottom:'8px'}},'Pagos confirmados ✅'),
+      React.createElement('div',{style:{display:'flex',flexDirection:'column',gap:'6px'}},
+        ...historialPagos.map(p=>{
+          const de=data.mamas.find(m=>m.id===p.deId),a=data.mamas.find(m=>m.id===p.aId);
+          const ide=data.mamas.findIndex(m=>m.id===p.deId),ia=data.mamas.findIndex(m=>m.id===p.aId);
+          return React.createElement('div',{key:p.id,className:'pagado-banner',style:{justifyContent:'space-between',flexWrap:'wrap',gap:'6px'}},
+            React.createElement('div',{className:'row',style:{gap:'6px',flexWrap:'wrap'}},
+              React.createElement('span',null,'✅'),
+              React.createElement(Avatar,{mama:de||{nombre:'?',foto:null},size:24,idx:ide}),
+              React.createElement('span',{style:{fontSize:'13px'}},de?.nombre),
+              React.createElement('span',{style:{color:'#047857'}},'→'),
+              React.createElement(Avatar,{mama:a||{nombre:'?',foto:null},size:24,idx:ia}),
+              React.createElement('span',{style:{fontSize:'13px'}},a?.nombre),
+              React.createElement('span',{style:{fontWeight:600}},fmtCLP(p.monto)),
+              React.createElement('span',{style:{fontSize:'11px',color:'#6EE7B7'}},fmtDate(p.fecha))
+            ),
+            esAdmin&&React.createElement('button',{className:'btn btn-sm btn-danger',style:{fontSize:'11px'},onClick:()=>deshacerPago(p.id)},'Deshacer')
+          );
+        })
+      )
+    )
+  );
+}
+
+// ── Gastos ─────────────────────────────────────────────────────────────────
+function Gastos({data,usuario,onSave}){
+  const blank=()=>({desc:'',monto:'',fecha:new Date().toISOString().slice(0,10),pagadoPor:usuario.id,modo:'igual',sel:data.mamas.map(m=>m.id),montos:{}});
+  const[show,setShow]=useState(false);
+  const[f,setF]=useState(blank());
+  const[err,setErr]=useState('');
+  const[detalleId,setDetalleId]=useState(null);
+  function upd(k,v){setF(prev=>({...prev,[k]:v}));}
+  const sumaCustom=Object.values(f.montos).reduce((a,v)=>a+(Number(v)||0),0);
+  const totalNum=Number(f.monto)||0;
+  const diff=Math.abs(totalNum-sumaCustom);
+  const ok=diff<1;
+  function toggleMama(id){
+    const ns=f.sel.includes(id)?f.sel.filter(x=>x!==id):[...f.sel,id];
+    const nm={...f.montos};if(!ns.includes(id))delete nm[id];
+    setF(prev=>({...prev,sel:ns,montos:nm}));
+  }
+  function setMontoMama(id,val){setF(prev=>({...prev,montos:{...prev.montos,[id]:val}}));}
+  function distribuirResto(){
+    if(!totalNum)return;
+    const n=f.sel.length;if(n===0)return;
+    const share=Math.round(totalNum/n);
+    const nm={};f.sel.forEach((id,i)=>nm[id]=i<n-1?share:totalNum-share*(n-1));
+    setF(prev=>({...prev,montos:nm}));
+  }
+  function agregar(){
+    if(!f.desc.trim()||!f.monto||isNaN(totalNum)||totalNum<=0){setErr('Completa descripción y monto total.');return;}
+    if(f.sel.length===0){setErr('Selecciona al menos una participante.');return;}
+    if(f.modo==='custom'&&!ok){setErr('La suma ('+fmtCLP(sumaCustom)+') no coincide con el total ('+fmtCLP(totalNum)+').');return;}
+    const g={id:'g'+Date.now(),descripcion:f.desc.trim(),monto:totalNum,fecha:f.fecha,pagadoPor:f.pagadoPor,participantes:f.sel,montosPorMama:f.modo==='custom'?Object.fromEntries(f.sel.map(id=>[id,Number(f.montos[id])||0])):null};
+    onSave({...data,gastos:[...data.gastos,g]});
+    setF(blank());setErr('');setShow(false);
+  }
+  function eliminar(id){
+    if(!usuario.tesorera){alert('Solo la tesorera puede eliminar gastos.');return;}
+    if(confirm('¿Eliminar este gasto?'))onSave({...data,gastos:data.gastos.filter(g=>g.id!==id)});
+  }
+  return React.createElement('div',{className:'col'},
+    React.createElement('div',{className:'row space-between'},
+      React.createElement('h2',{style:{fontSize:'17px',fontWeight:500}},'Gastos ('+data.gastos.length+')'),
+      React.createElement('button',{className:'btn btn-primary btn-sm',onClick:()=>{setShow(!show);setF(blank());setErr('');}},show?'Cancelar':'+ Nuevo')
+    ),
+    show&&React.createElement('div',{className:'card col'},
+      React.createElement('h3',{style:{fontSize:'15px',fontWeight:500}},'Nuevo gasto'),
+      React.createElement('div',null,React.createElement('label',null,'Descripción'),React.createElement('input',{value:f.desc,onChange:e=>upd('desc',e.target.value),placeholder:'Ej: Tercer tiempo — Asado + Chelitas'})),
+      React.createElement('div',null,React.createElement('label',null,'Monto total (CLP)'),React.createElement('input',{type:'number',value:f.monto,onChange:e=>upd('monto',e.target.value),placeholder:'30000'})),
+      React.createElement('div',null,React.createElement('label',null,'Fecha'),React.createElement('input',{type:'date',value:f.fecha,onChange:e=>upd('fecha',e.target.value)})),
+      React.createElement('div',null,React.createElement('label',null,'¿Quién pagó?'),
+        React.createElement('select',{value:f.pagadoPor,onChange:e=>upd('pagadoPor',e.target.value)},
+          ...data.mamas.map(m=>React.createElement('option',{key:m.id,value:m.id},m.nombre))
+        )
+      ),
+      React.createElement('div',null,
+        React.createElement('label',null,'¿Cómo se divide?'),
+        React.createElement('div',{className:'toggle-row'},
+          React.createElement('button',{className:'toggle-opt'+(f.modo==='igual'?' active':''),onClick:()=>upd('modo','igual')},'⚖️ Partes iguales'),
+          React.createElement('button',{className:'toggle-opt'+(f.modo==='custom'?' active':''),onClick:()=>upd('modo','custom')},'✏️ Montos personalizados')
+        )
+      ),
+      f.modo==='igual'&&React.createElement('div',null,
+        React.createElement('div',{className:'row space-between',style:{marginBottom:'8px'}},
+          React.createElement('label',{style:{margin:0}},'¿Quiénes participaron?'),
+          React.createElement('button',{className:'btn btn-sm',style:{fontSize:'11px'},onClick:()=>setF(p=>({...p,sel:p.sel.length===data.mamas.length?[]:data.mamas.map(m=>m.id)}))},f.sel.length===data.mamas.length?'Ninguna':'Todas')
+        ),
+        React.createElement('div',{style:{display:'flex',flexWrap:'wrap',gap:'6px'}},
+          ...data.mamas.map((m,i)=>{
+            const on=f.sel.includes(m.id);
+            return React.createElement('div',{key:m.id,onClick:()=>toggleMama(m.id),style:{display:'flex',alignItems:'center',gap:'5px',padding:'4px 10px',borderRadius:'20px',cursor:'pointer',fontSize:'13px',border:'0.5px solid '+(on?'#8B1A1A':'#d0cfc8'),background:on?'#F5E6E6':'transparent',color:on?'#8B1A1A':'#6b6b68'}},
+              React.createElement(Avatar,{mama:m,size:20,idx:i}),m.nombre
+            );
+          })
+        ),
+        f.sel.length>0&&totalNum>0&&React.createElement('p',{style:{fontSize:'12px',color:'#6b6b68',marginTop:'4px'}},'→ '+fmtCLP(Math.round(totalNum/f.sel.length))+' por mamá ('+f.sel.length+' participantes)')
+      ),
+      f.modo==='custom'&&React.createElement('div',{className:'col',style:{gap:'8px'}},
+        React.createElement('div',{className:'row space-between'},
+          React.createElement('label',{style:{margin:0}},'Monto por mamá'),
+          React.createElement('button',{className:'btn btn-sm',style:{fontSize:'11px'},onClick:distribuirResto},'Distribuir igualmente')
+        ),
+        React.createElement('div',{style:{border:'0.5px solid #e8e7e0',borderRadius:8,padding:'6px 10px'}},
+          ...data.mamas.map((m,i)=>{
+            const on=f.sel.includes(m.id);
+            return React.createElement('div',{key:m.id,className:'monto-row'},
+              React.createElement('input',{type:'checkbox',style:{width:'auto',flexShrink:0},checked:on,onChange:()=>toggleMama(m.id)}),
+              React.createElement(Avatar,{mama:m,size:24,idx:i}),
+              React.createElement('span',{style:{flex:1,fontSize:'13px',fontWeight:on?500:400,color:on?'#1a1a18':'#6b6b68'}},m.nombre),
+              on&&React.createElement('input',{className:'monto-input',type:'number',placeholder:'$0',value:f.montos[m.id]||'',onChange:e=>setMontoMama(m.id,e.target.value)})
+            );
+          })
+        ),
+        totalNum>0&&React.createElement('div',{className:ok?'ok-bar':'warning-bar'},
+          ok?'✅ Suma correcta: '+fmtCLP(sumaCustom)+' = '+fmtCLP(totalNum)
+            :'⚠️ Suma: '+fmtCLP(sumaCustom)+' / Total: '+fmtCLP(totalNum)+(sumaCustom<totalNum?' (faltan '+fmtCLP(diff)+')':' (sobran '+fmtCLP(diff)+')')
+        )
+      ),
+      err&&React.createElement('p',{style:{color:'#dc2626',fontSize:'13px'}},err),
+      React.createElement('button',{className:'btn btn-primary',onClick:agregar},'Guardar gasto')
+    ),
+    data.gastos.length===0?React.createElement('div',{className:'empty-state'},'Sin gastos aún 🙈'):
+    React.createElement('div',{className:'scroll-list'},
+      ...data.gastos.slice().reverse().map(g=>{
+        const pg=data.mamas.find(m=>m.id===g.pagadoPor),pi2=data.mamas.findIndex(m=>m.id===g.pagadoPor);
+        const isCustom=!!g.montosPorMama,n=(g.participantes||[]).length,open=detalleId===g.id;
+        return React.createElement('div',{key:g.id,className:'card'},
+          React.createElement('div',{className:'row space-between'},
+            React.createElement('div',{className:'row',style:{gap:'8px',flex:1}},
+              React.createElement(Avatar,{mama:pg||{nombre:'?',foto:null},size:32,idx:pi2}),
+              React.createElement('div',{className:'col',style:{gap:'1px',flex:1}},
+                React.createElement('span',{style:{fontSize:'14px',fontWeight:500}},g.descripcion),
+                React.createElement('span',{style:{fontSize:'11px',color:'#6b6b68'}},fmtDate(g.fecha)+' · '+pg?.nombre+' · '+(isCustom?'montos personalizados':n+' mamás · '+fmtCLP(g.monto/n)+' c/u'))
+              )
+            ),
+            React.createElement('div',{className:'col',style:{alignItems:'flex-end',gap:'4px'}},
+              React.createElement('span',{style:{fontWeight:600,color:'#8B1A1A',whiteSpace:'nowrap'}},fmtCLP(g.monto)),
+              React.createElement('div',{className:'row',style:{gap:'4px'}},
+                React.createElement('button',{className:'btn btn-sm',style:{fontSize:'11px'},onClick:()=>setDetalleId(open?null:g.id)},open?'▲':'▼'),
+                usuario.tesorera&&React.createElement('button',{className:'btn btn-sm btn-danger',onClick:()=>eliminar(g.id)},'✕')
+              )
+            )
+          ),
+          open&&React.createElement('div',{style:{marginTop:'10px',paddingTop:'10px',borderTop:'0.5px solid #e8e7e0'}},
+            isCustom
+              ?React.createElement('div',null,
+                React.createElement('p',{style:{fontSize:'12px',color:'#6b6b68',marginBottom:'6px'}},'Montos personalizados:'),
+                ...Object.entries(g.montosPorMama).map(([id,m])=>{
+                  const mm=data.mamas.find(x=>x.id===id),mi=data.mamas.findIndex(x=>x.id===id);
+                  return React.createElement('div',{key:id,className:'row space-between',style:{padding:'3px 0'}},
+                    React.createElement('div',{className:'row',style:{gap:'6px'}},
+                      React.createElement(Avatar,{mama:mm||{nombre:'?',foto:null},size:22,idx:mi}),
+                      React.createElement('span',{style:{fontSize:'13px'}},mm?.nombre||id)
+                    ),
+                    React.createElement('span',{style:{fontSize:'13px',fontWeight:500}},fmtCLP(m))
+                  );
+                })
+              )
+              :React.createElement('div',null,
+                React.createElement('p',{style:{fontSize:'12px',color:'#6b6b68',marginBottom:'6px'}},'División igualitaria — '+fmtCLP(g.monto/n)+' c/u:'),
+                React.createElement('div',{style:{display:'flex',flexWrap:'wrap',gap:'6px'}},
+                  ...(g.participantes||[]).map(id=>{
+                    const mm=data.mamas.find(x=>x.id===id),mi=data.mamas.findIndex(x=>x.id===id);
+                    return React.createElement('div',{key:id,style:{display:'flex',alignItems:'center',gap:'4px',fontSize:'12px'}},
+                      React.createElement(Avatar,{mama:mm||{nombre:'?',foto:null},size:20,idx:mi}),mm?.nombre
+                    );
+                  })
+                )
+              )
+          )
+        );
+      })
+    )
+  );
+}
+
+// ── Perfil ─────────────────────────────────────────────────────────────────
+function Perfil({data,usuario,idx,onSave,onUpdateFoto}){
+  const[p1,setP1]=useState('');
+  const[p2,setP2]=useState('');
+  const[msg,setMsg]=useState('');
+  const mama=data.mamas.find(m=>m.id===usuario.id)||usuario;
+  function cambiarPin(){
+    if(p1.length!==4||isNaN(Number(p1))){setMsg('PIN debe ser de 4 dígitos numéricos.');return;}
+    if(p1!==p2){setMsg('Los PINs no coinciden.');return;}
+    onSave({...data,mamas:data.mamas.map(m=>m.id===usuario.id?{...m,pin:p1}:m)});
+    setP1('');setP2('');setMsg('✅ PIN actualizado.');
+  }
+  return React.createElement('div',{className:'col'},
+    React.createElement('h2',{style:{fontSize:'17px',fontWeight:500}},'Mi perfil'),
+    React.createElement('div',{className:'card',style:{display:'flex',flexDirection:'column',alignItems:'center',gap:'14px',padding:'2rem 1.25rem'}},
+      React.createElement(Avatar,{mama:mama,size:100,idx,editable:true,onUpload:f=>onUpdateFoto(usuario.id,f)}),
+      React.createElement('div',{style:{textAlign:'center'}},
+        React.createElement('h3',{style:{fontSize:'20px',fontWeight:700}},usuario.nombre),
+        React.createElement('div',{className:'row',style:{gap:'4px',justifyContent:'center',marginTop:'6px'}},
+          usuario.capitana&&React.createElement('span',{className:'badge badge-capi'},'⚽ Capitana'),
+          usuario.tesorera&&React.createElement('span',{className:'badge badge-teso'},'💰 Tesorera · Admin')
+        ),
+        React.createElement('p',{style:{fontSize:'12px',color:'#6b6b68',marginTop:'8px'}},'Toca la foto para cambiarla 📷')
+      ),
+      mama.foto&&React.createElement('button',{className:'btn btn-sm btn-danger',onClick:()=>onUpdateFoto(usuario.id,null)},'Quitar foto')
+    ),
+    React.createElement('div',{className:'card col'},
+      React.createElement('h3',{style:{fontSize:'15px',fontWeight:500}},'Cambiar mi PIN'),
+      React.createElement('div',null,React.createElement('label',null,'Nuevo PIN'),React.createElement('input',{type:'password',maxLength:4,value:p1,onChange:e=>setP1(e.target.value),placeholder:'••••'})),
+      React.createElement('div',null,React.createElement('label',null,'Confirmar PIN'),React.createElement('input',{type:'password',maxLength:4,value:p2,onChange:e=>setP2(e.target.value),placeholder:'••••'})),
+      msg&&React.createElement('p',{style:{color:msg.startsWith('✅')?'#059669':'#dc2626',fontSize:'13px'}},msg),
+      React.createElement('button',{className:'btn btn-primary',onClick:cambiarPin},'Guardar PIN')
+    )
+  );
+}
+
+// ── Admin ──────────────────────────────────────────────────────────────────
+function Admin({data,usuario,onSave}){
+  const[nombre,setNombre]=useState('');
+  const[pinV,setPin]=useState('');
+  const[err,setErr]=useState('');
+  function agregar(){
+    if(!nombre.trim()||pinV.length!==4||isNaN(Number(pinV))){setErr('Nombre y PIN de 4 dígitos requeridos.');return;}
+    onSave({...data,mamas:[...data.mamas,{id:'m'+Date.now(),nombre:nombre.trim(),pin:pinV,tesorera:false,capitana:false,foto:null}]});
+    setNombre('');setPin('');setErr('');
+  }
+  function eliminar(id){
+    if(id===usuario.id){alert('No puedes eliminarte.');return;}
+    if(confirm('¿Eliminar esta mamá?'))onSave({...data,mamas:data.mamas.filter(m=>m.id!==id)});
+  }
+  function cambiarTesorera(id){onSave({...data,mamas:data.mamas.map(m=>({...m,tesorera:m.id===id}))});}
+  function resetPin(id,np){
+    if(np.length!==4||isNaN(Number(np))){alert('PIN de 4 dígitos.');return;}
+    onSave({...data,mamas:data.mamas.map(m=>m.id===id?{...m,pin:np}:m)});
+  }
+  return React.createElement('div',{className:'col'},
+    React.createElement('h2',{style:{fontSize:'17px',fontWeight:500}},'Administración ⚙️'),
+    React.createElement('p',{style:{fontSize:'13px',color:'#6b6b68'}},'Como tesorera tienes acceso completo de administradora.'),
+    React.createElement('div',{className:'card col'},
+      React.createElement('h3',{style:{fontSize:'15px',fontWeight:500}},'Agregar mamá nueva'),
+      React.createElement('div',null,React.createElement('label',null,'Nombre'),React.createElement('input',{value:nombre,onChange:e=>setNombre(e.target.value),placeholder:'Ej: Sofi'})),
+      React.createElement('div',null,React.createElement('label',null,'PIN (4 dígitos)'),React.createElement('input',{type:'text',maxLength:4,value:pinV,onChange:e=>setPin(e.target.value),placeholder:'Ej: 5678'})),
+      err&&React.createElement('p',{style:{color:'#dc2626',fontSize:'13px'}},err),
+      React.createElement('button',{className:'btn btn-primary',onClick:agregar},'+ Agregar')
+    ),
+    React.createElement('div',{className:'card col'},
+      React.createElement('h3',{style:{fontSize:'15px',fontWeight:500}},'Equipo ('+data.mamas.length+')'),
+      ...data.mamas.map((m,i)=>{
+        const[ep,setEp]=useState('');
+        return React.createElement('div',{key:m.id,style:{display:'flex',alignItems:'center',gap:'6px',padding:'7px 0',borderBottom:'0.5px solid #e8e7e0',flexWrap:'wrap'}},
+          React.createElement(Avatar,{mama:m,size:28,idx:i}),
+          React.createElement('span',{style:{fontSize:'13px',fontWeight:500,flex:1,minWidth:'50px'}},m.nombre+(m.capitana?' ⚽':'')+(m.tesorera?' 💰':'')),
+          React.createElement('span',{style:{fontSize:'11px',color:'#6b6b68'}},'PIN: '+m.pin),
+          React.createElement('input',{type:'text',maxLength:4,placeholder:'nuevo PIN',value:ep,onChange:e=>setEp(e.target.value),style:{width:'72px',padding:'3px 6px',fontSize:'12px'}}),
+          React.createElement('button',{className:'btn btn-sm',style:{fontSize:'11px'},onClick:()=>{resetPin(m.id,ep);setEp('');}},'+PIN'),
+          !m.tesorera&&React.createElement('button',{className:'btn btn-sm',style:{fontSize:'11px'},onClick:()=>cambiarTesorera(m.id)},'💰 Teso'),
+          !m.tesorera&&!m.capitana&&React.createElement('button',{className:'btn btn-sm btn-danger',onClick:()=>eliminar(m.id)},'✕')
+        );
+      })
+    )
+  );
+}
+
+createRoot(document.getElementById('root')).render(React.createElement(App));
+</script>
+</body>
+</html>
